@@ -33,9 +33,10 @@ class SettingsDockWidget(QDockWidget):
     # Default models for each provider
     DEFAULT_MODELS = {
         "ollama": "llama3.1",
-        "claude": "claude-sonnet-4-20250514",
+        "claude": "claude-sonnet-4-5-20250929",
         "openai": "gpt-4o",
-        "gemini": "gemini-2.0-flash",
+        "gemini": "gemini-3-flash",
+        "bedrock": "anthropic.claude-sonnet-4-5-20250929-v1:0",
     }
 
     # Default base URLs
@@ -44,6 +45,7 @@ class SettingsDockWidget(QDockWidget):
         "claude": "https://api.anthropic.com",
         "openai": "https://api.openai.com",
         "gemini": "https://generativelanguage.googleapis.com",
+        "bedrock": "https://bedrock-runtime.us-east-1.amazonaws.com",
     }
 
     def __init__(self, iface, parent=None):
@@ -70,7 +72,7 @@ class SettingsDockWidget(QDockWidget):
         layout.setSpacing(10)
 
         # Header
-        header_label = QLabel("⚙️ Settings")
+        header_label = QLabel("Settings")
         header_font = QFont()
         header_font.setPointSize(12)
         header_font.setBold(True)
@@ -164,8 +166,8 @@ class SettingsDockWidget(QDockWidget):
             api_key_layout = QHBoxLayout()
             api_key_layout.addWidget(api_key_input)
 
-            show_key_btn = QPushButton("👁")
-            show_key_btn.setMaximumWidth(30)
+            show_key_btn = QPushButton("Show")
+            show_key_btn.setMaximumWidth(50)
             show_key_btn.setCheckable(True)
             show_key_btn.toggled.connect(
                 lambda checked, inp=api_key_input: inp.setEchoMode(
@@ -217,7 +219,7 @@ class SettingsDockWidget(QDockWidget):
                 "Claude is Anthropic's AI assistant.\n\n"
                 "1. Get an API key from https://console.anthropic.com\n"
                 "2. Enter your API key above\n"
-                "3. Recommended model: claude-sonnet-4-20250514"
+                "3. Recommended model: claude-sonnet-4-5-20250929"
             ),
             "openai": (
                 "OpenAI provides GPT models.\n\n"
@@ -229,7 +231,7 @@ class SettingsDockWidget(QDockWidget):
                 "Gemini is Google's AI model.\n\n"
                 "1. Get an API key from https://aistudio.google.com\n"
                 "2. Enter your API key above\n"
-                "3. Recommended model: gemini-2.0-flash"
+                "3. Recommended model: gemini-3-flash"
             ),
         }
 
@@ -260,7 +262,7 @@ class SettingsDockWidget(QDockWidget):
         # Model ID
         self.bedrock_model_input = QLineEdit()
         self.bedrock_model_input.setPlaceholderText(
-            "anthropic.claude-sonnet-4-20250514-v1:0"
+            "anthropic.claude-sonnet-4-5-20250929-v1:0"
         )
         form_layout.addRow("Model ID:", self.bedrock_model_input)
 
@@ -282,7 +284,7 @@ class SettingsDockWidget(QDockWidget):
             "   - Or use ~/.aws/credentials file\n"
             "2. Ensure you have Bedrock model access enabled\n"
             "3. Install boto3: pip install boto3\n\n"
-            "Recommended model: anthropic.claude-sonnet-4-20250514-v1:0"
+            "Recommended model: anthropic.claude-sonnet-4-5-20250929-v1:0"
         )
         help_label.setWordWrap(True)
         help_label.setStyleSheet("color: #888;")
@@ -369,13 +371,13 @@ class SettingsDockWidget(QDockWidget):
                 QMessageBox.information(
                     self,
                     "Test Connection",
-                    f"✅ Successfully connected to {provider.capitalize()}!",
+                    f"Successfully connected to {provider.capitalize()}!",
                 )
             else:
                 QMessageBox.warning(
                     self,
                     "Test Connection",
-                    f"❌ Failed to connect to {provider.capitalize()}.\n"
+                    f"Failed to connect to {provider.capitalize()}.\n"
                     "Please check your settings.",
                 )
 
@@ -383,7 +385,7 @@ class SettingsDockWidget(QDockWidget):
             QMessageBox.critical(
                 self,
                 "Test Connection",
-                f"❌ Connection error:\n{str(e)}",
+                f"Connection error:\n{str(e)}",
             )
 
     def _load_settings(self):
