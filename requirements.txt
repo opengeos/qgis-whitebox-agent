@@ -1,0 +1,11 @@
+# Whitebox AI Agent - Python Requirements
+# 
+# Note: Most dependencies are provided by QGIS/PyQGIS.
+# This file lists optional dependencies for development and testing.
+
+# For testing outside QGIS (LLM client only)
+# No additional packages required - uses stdlib urllib
+
+# For development
+# black>=23.0  # Code formatting
+# pre-commit>=3.0  # Git hooks

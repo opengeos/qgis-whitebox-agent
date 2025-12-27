@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a5f2a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0d3d16;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="terrainGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" style="stop-color:#2d5a27;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#4a7c44;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8fbc8f;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background circle -->
+  <circle cx="32" cy="32" r="30" fill="url(#bgGrad)" stroke="#0a2810" stroke-width="2"/>
+
+  <!-- Terrain/DEM representation -->
+  <path d="M 8 48
+           L 16 38
+           L 22 42
+           L 28 30
+           L 34 35
+           L 42 22
+           L 48 28
+           L 56 20
+           L 56 48
+           Z"
+        fill="url(#terrainGrad)"
+        opacity="0.8"/>
+
+  <!-- Flow lines (hydrology) -->
+  <path d="M 42 22 Q 40 30 38 38 Q 36 44 32 48"
+        stroke="#4fc3f7"
+        stroke-width="2"
+        fill="none"
+        stroke-linecap="round"
+        opacity="0.8"/>
+  <path d="M 28 30 Q 30 36 32 42 Q 33 45 32 48"
+        stroke="#4fc3f7"
+        stroke-width="1.5"
+        fill="none"
+        stroke-linecap="round"
+        opacity="0.6"/>
+
+  <!-- AI/Robot head indicator -->
+  <circle cx="48" cy="14" r="8" fill="#fff" opacity="0.95"/>
+  <circle cx="45" cy="13" r="1.5" fill="#333"/>
+  <circle cx="51" cy="13" r="1.5" fill="#333"/>
+  <path d="M 45 17 Q 48 19 51 17" stroke="#333" stroke-width="1" fill="none" stroke-linecap="round"/>
+  <rect x="46" y="6" width="4" height="3" rx="1" fill="#666"/>
+
+  <!-- WBT text -->
+  <text x="12" y="20"
+        font-family="Arial, sans-serif"
+        font-size="10"
+        font-weight="bold"
+        fill="#fff"
+        opacity="0.9">WBT</text>
+</svg>
