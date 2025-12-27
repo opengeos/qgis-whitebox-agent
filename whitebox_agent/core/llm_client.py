@@ -46,7 +46,7 @@ ALWAYS respond with exactly ONE valid JSON object. No extra text before or after
 ## RULES
 1. If input layer exists in LAYER_CATALOG → run algorithm immediately (don't ask!)
 2. Use EXACT paths from LAYER_CATALOG (the "source:" value)
-3. Use EXACT algorithm_id from AVAILABLE_ALGORITHMS 
+3. Use EXACT algorithm_id from AVAILABLE_ALGORITHMS
 4. When user confirms ("yes", "ok", "please do") → run algorithm immediately
 5. For continuation messages → use the provided output path as input
 
@@ -59,7 +59,7 @@ ALWAYS respond with exactly ONE valid JSON object. No extra text before or after
 - Always use "output": "TEMP"
 - NEVER invent paths like "slope.tif" - only use paths that exist in LAYER_CATALOG!
 
-## MULTI-STEP WORKFLOWS  
+## MULTI-STEP WORKFLOWS
 - If flow_accum layer exists in LAYER_CATALOG, use it directly for ExtractStreams/WetnessIndex
 - If not, run D8FlowAccumulation first, then continue with the original request
 """
@@ -75,13 +75,13 @@ Return ONLY ONE JSON object. No markdown, no extra text, no multiple JSON object
 
 ## WHEN TO USE EACH
 - Input exists in LAYER_CATALOG → run_algorithm immediately
-- User confirms ("yes", "ok", "please do") → run_algorithm immediately  
+- User confirms ("yes", "ok", "please do") → run_algorithm immediately
 - User asks a question → explain
 - Need clarification on which layer → ask_user
 
 ## EXAMPLES (paths below are FAKE - always use REAL paths from LAYER_CATALOG!)
 
-"fill depressions": 
+"fill depressions":
 {"action": "run_algorithm", "algorithm_id": "wbt:FillDepressions", "params": {"dem": "<DEM_PATH>", "output": "TEMP"}, "load_outputs": true}
 
 "flow accumulation":
@@ -482,14 +482,14 @@ class LLMClient:
         brace_count = 0
         start_idx = -1
         for i, char in enumerate(text):
-            if char == '{':
+            if char == "{":
                 if brace_count == 0:
                     start_idx = i
                 brace_count += 1
-            elif char == '}':
+            elif char == "}":
                 brace_count -= 1
                 if brace_count == 0 and start_idx >= 0:
-                    json_str = text[start_idx:i+1]
+                    json_str = text[start_idx : i + 1]
                     try:
                         result = json.loads(json_str)
                         # Only return if it has a valid action

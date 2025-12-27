@@ -203,7 +203,9 @@ class ContextBuilder:
         """
         lines = ["=== AVAILABLE_ALGORITHMS ==="]
         lines.append("WhiteboxTools algorithms available through QGIS Processing.")
-        lines.append("IMPORTANT: Use the EXACT algorithm_id (e.g., 'wbt:FillDepressions') when running!")
+        lines.append(
+            "IMPORTANT: Use the EXACT algorithm_id (e.g., 'wbt:FillDepressions') when running!"
+        )
         lines.append("")
 
         algorithms = self.registry.get_whitebox_algorithms()
