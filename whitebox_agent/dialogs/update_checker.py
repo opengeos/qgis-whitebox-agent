@@ -189,6 +189,7 @@ class DownloadWorker(QThread):
                 try:
                     shutil.rmtree(temp_dir)
                 except OSError:
+                    # Ignore errors while removing the temporary directory; this is best-effort cleanup.
                     pass
 
 
