@@ -20,10 +20,6 @@ from qgis.PyQt.QtWidgets import (
     QTextEdit,
     QComboBox,
     QProgressBar,
-    QScrollArea,
-    QFrame,
-    QSplitter,
-    QMessageBox,
 )
 from qgis.PyQt.QtGui import QFont, QColor, QTextCursor, QTextCharFormat
 from qgis.core import QgsProject
