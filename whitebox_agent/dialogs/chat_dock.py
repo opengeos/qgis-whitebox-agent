@@ -181,7 +181,13 @@ class AgentWorker(QThread):
                     )
 
                     # Continue with explicit output path so LLM knows exactly what to use
-                    current_message = f"Continue with the original request. The previous step ({algorithm_id}) completed successfully. The output layer is at: {output_path} - USE THIS EXACT PATH for the next algorithm's input parameter."
+                    current_message = (
+                        f"Continue with the original request. The previous step ({algorithm_id}) "
+                        f"completed successfully. The output layer is located at: {output_path}. "
+                        "Use this file path as the value for the next algorithm's main input "
+                        "parameter (for example, its 'dem', 'input', or 'flow_accum' parameter), "
+                        "as appropriate."
+                    )
                     continue
 
                 # Final result - emit and exit loop
