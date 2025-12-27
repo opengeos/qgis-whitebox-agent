@@ -34,9 +34,13 @@ class AgentWorker(QThread):
     """Background worker for LLM communication and execution."""
 
     finished = pyqtSignal(dict)  # Emits result dictionary
+    intermediate = pyqtSignal(dict)  # Emits intermediate results for multi-step workflows
     error = pyqtSignal(str)  # Emits error message
     progress = pyqtSignal(float)  # Emits progress (0-100)
     message = pyqtSignal(str)  # Emits status messages
+
+    # Maximum number of steps in a multi-step workflow to prevent infinite loops
+    MAX_WORKFLOW_STEPS = 5
 
     def __init__(
         self,
@@ -52,60 +56,129 @@ class AgentWorker(QThread):
         self.agent_executor = agent_executor
         self.user_message = user_message
         self.conversation_history = conversation_history
+        self.original_request = user_message  # Store original request for multi-step
 
     def run(self):
-        """Execute the agent workflow in background."""
+        """Execute the agent workflow in background, with multi-step support."""
         try:
-            self.message.emit("Building context...")
+            current_message = self.user_message
+            step_count = 0
+            
+            while step_count < self.MAX_WORKFLOW_STEPS:
+                step_count += 1
+                
+                self.message.emit(f"Building context... (step {step_count})")
 
-            # Build context
-            context = self.context_builder.build_full_context(
-                include_algorithms=True,
-                include_layers=True,
-            )
+                # Build context (refreshed each step to include new layers)
+                context = self.context_builder.build_full_context(
+                    include_algorithms=True,
+                    include_layers=True,
+                )
 
-            self.message.emit("Sending to LLM...")
-            self.progress.emit(25)
+                self.message.emit("Sending to LLM...")
+                self.progress.emit(25)
 
-            # Send to LLM
-            response = self.llm_client.send_message(
-                user_message=self.user_message,
-                context=context,
-                conversation_history=self.conversation_history,
-            )
+                # Send to LLM
+                response = self.llm_client.send_message(
+                    user_message=current_message,
+                    context=context,
+                    conversation_history=self.conversation_history,
+                )
 
-            self.progress.emit(50)
-            self.message.emit("Processing response...")
+                self.progress.emit(50)
+                self.message.emit("Processing response...")
 
-            # Check for errors in parsing
-            if response.get("error"):
+                # Check for errors in parsing
+                if response.get("error"):
+                    self.finished.emit(
+                        {
+                            "success": False,
+                            "action_type": "explain",
+                            "message": response.get("text", "Failed to parse LLM response"),
+                            "raw_response": response,
+                        }
+                    )
+                    return
+
+                # Execute the action
+                result = self.agent_executor.execute(
+                    response,
+                    progress_callback=lambda p: self.progress.emit(50 + p * 0.5),
+                )
+
+                action_type = result.action_type.value
+                
+                # Check if this is an intermediate step in a multi-step workflow
+                # Continue if: run_algorithm succeeded AND we're not on the original request
+                # (meaning user confirmed a multi-step workflow)
+                # Check if this is a confirmation message for a multi-step workflow
+                confirm_words = ["yes", "ok", "proceed", "do it", "please", "go ahead", "y", "please do", "sure", "go", "run it", "execute"]
+                msg_lower = current_message.lower().strip()
+                is_confirm = msg_lower in confirm_words or msg_lower.startswith("yes") or msg_lower.startswith("please")
+                
+                is_continuation = (
+                    action_type == "run_algorithm" 
+                    and result.success 
+                    and step_count == 1
+                    and is_confirm
+                )
+                
+                if is_continuation:
+                    # Emit intermediate result so UI can show progress
+                    self.intermediate.emit(
+                        {
+                            "success": result.success,
+                            "action_type": action_type,
+                            "message": result.message,
+                            "data": result.data,
+                            "outputs": result.outputs,
+                            "error": result.error,
+                            "raw_response": response,
+                        }
+                    )
+                    
+                    # Get the output path from the result
+                    output_path = ""
+                    if result.outputs:
+                        # Get the first output path (usually "output")
+                        for key, value in result.outputs.items():
+                            if isinstance(value, str) and value.endswith(('.tif', '.shp', '.geojson', '.gpkg')):
+                                output_path = value
+                                break
+                    
+                    # Add the result to conversation history with the actual output path
+                    algorithm_id = response.get('algorithm_id', 'algorithm')
+                    self.conversation_history.append({
+                        "role": "assistant",
+                        "content": f"Successfully executed {algorithm_id}. Output saved to: {output_path}"
+                    })
+                    
+                    # Continue with explicit output path so LLM knows exactly what to use
+                    current_message = f"Continue with the original request. The previous step ({algorithm_id}) completed successfully. The output layer is at: {output_path} - USE THIS EXACT PATH for the next algorithm's input parameter."
+                    continue
+                
+                # Final result - emit and exit loop
+                self.progress.emit(100)
                 self.finished.emit(
                     {
-                        "success": False,
-                        "action_type": "explain",
-                        "message": response.get("text", "Failed to parse LLM response"),
+                        "success": result.success,
+                        "action_type": action_type,
+                        "message": result.message,
+                        "data": result.data,
+                        "outputs": result.outputs,
+                        "error": result.error,
                         "raw_response": response,
                     }
                 )
                 return
 
-            # Execute the action
-            result = self.agent_executor.execute(
-                response,
-                progress_callback=lambda p: self.progress.emit(50 + p * 0.5),
-            )
-
-            self.progress.emit(100)
-
+            # If we hit max steps, emit final result
             self.finished.emit(
                 {
-                    "success": result.success,
-                    "action_type": result.action_type.value,
-                    "message": result.message,
-                    "data": result.data,
-                    "outputs": result.outputs,
-                    "error": result.error,
-                    "raw_response": response,
+                    "success": False,
+                    "action_type": "explain",
+                    "message": "Workflow exceeded maximum steps. Please try a simpler request.",
+                    "error": "Max workflow steps exceeded",
                 }
             )
 
@@ -386,6 +459,7 @@ class ChatDockWidget(QDockWidget):
         )
 
         self._worker.finished.connect(self._on_worker_finished)
+        self._worker.intermediate.connect(self._on_worker_intermediate)
         self._worker.error.connect(self._on_worker_error)
         self._worker.progress.connect(self._on_worker_progress)
         self._worker.message.connect(self._on_worker_message)
@@ -455,6 +529,23 @@ class ChatDockWidget(QDockWidget):
         # Limit history size
         if len(self.conversation_history) > 20:
             self.conversation_history = self.conversation_history[-20:]
+
+    def _on_worker_intermediate(self, result: Dict[str, Any]):
+        """Handle intermediate results from multi-step workflows."""
+        # Load any outputs from this step
+        outputs = result.get("outputs", {})
+        loaded = []
+        if outputs:
+            loaded = self._load_output_layers(outputs)
+        
+        # Show intermediate result
+        message = result.get("message", "Step completed")
+        if loaded:
+            self._add_assistant_message(
+                f"[Step] {message}\n\nLoaded layers: {', '.join(loaded)}\n\nContinuing with next step..."
+            )
+        else:
+            self._add_assistant_message(f"[Step] {message}\n\nContinuing with next step...")
 
     def _on_worker_error(self, error_message: str):
         """Handle worker error."""

@@ -225,10 +225,19 @@ class AgentExecutor:
 
         # Validate algorithm ID
         if not self.registry.validate_algorithm_id(algorithm_id):
+            # Try to find similar algorithms
+            search_term = algorithm_id.split(":")[-1].lower() if ":" in algorithm_id else algorithm_id.lower()
+            similar = self.registry.search_algorithms(search_term)
+            
+            suggestion = ""
+            if similar:
+                alg_list = [f"  - {a['id']}: {a['displayName']}" for a in similar[:5]]
+                suggestion = f"\n\nDid you mean one of these?\n" + "\n".join(alg_list)
+            
             return ExecutionResult(
                 success=False,
                 action_type=ActionType.RUN_ALGORITHM,
-                message=f"Invalid algorithm ID: {algorithm_id}",
+                message=f"Invalid algorithm ID: {algorithm_id}{suggestion}",
                 error="Algorithm not found in registry.",
             )
 

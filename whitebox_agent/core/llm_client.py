@@ -38,64 +38,74 @@ class LLMConfig:
 
 
 # System prompt for the Whitebox AI agent
-SYSTEM_PROMPT = """You are an AI assistant that executes WhiteboxTools geospatial algorithms through QGIS.
+SYSTEM_PROMPT = """You are an AI assistant that executes WhiteboxTools algorithms through QGIS.
 
-## CRITICAL RULES
-1. ALWAYS respond with a valid JSON object - no plain text ever
-2. Read LAYER_CATALOG carefully and use the EXACT "source:" paths shown there
-3. For multi-step workflows, execute ONE step at a time
+## RESPONSE FORMAT
+ALWAYS respond with exactly ONE valid JSON object. No extra text before or after.
 
-## ALGORITHM REFERENCE
-- FillDepressions: wbt:FillDepressions (dem, output)
-- FlowAccumulation: wbt:D8FlowAccumulation (input, output) - NOTE: param is "input"
-- FlowDirection: wbt:D8Pointer (dem, output)
-- ExtractStreams: wbt:ExtractStreams (flow_accum, threshold, output) - REQUIRES flow accumulation raster!
-- Slope: wbt:Slope (dem, output)
-- Aspect: wbt:Aspect (dem, output)
-- Hillshade: wbt:Hillshade (dem, output)
+## RULES
+1. If input layer exists in LAYER_CATALOG → run algorithm immediately (don't ask!)
+2. Use EXACT paths from LAYER_CATALOG (the "source:" value)
+3. Use EXACT algorithm_id from AVAILABLE_ALGORITHMS 
+4. When user confirms ("yes", "ok", "please do") → run algorithm immediately
+5. For continuation messages → use the provided output path as input
 
-## MULTI-STEP WORKFLOWS
-Some operations require intermediate steps:
-- "Extract streams from DEM" requires: 1) Run D8FlowAccumulation first, 2) Then run ExtractStreams
-- If a required input doesn't exist, explain what needs to be done first
+## COMMON PARAMETERS
+- wbt:FillDepressions: dem (not input!)
+- wbt:D8FlowAccumulation: input
+- wbt:ExtractStreams: flow_accum (not input!), threshold
+- wbt:WetnessIndex: sca (=flow_accum), slope (use DEM path if no slope layer exists!)
+- wbt:Hillshade: dem
+- Always use "output": "TEMP"
+- NEVER invent paths like "slope.tif" - only use paths that exist in LAYER_CATALOG!
 
-## LAYER MATCHING
-Look at LAYER_CATALOG and copy the EXACT source path. Never invent paths.
+## MULTI-STEP WORKFLOWS  
+- If flow_accum layer exists in LAYER_CATALOG, use it directly for ExtractStreams/WetnessIndex
+- If not, run D8FlowAccumulation first, then continue with the original request
 """
 
 # Developer rules for strict behavior
-DEVELOPER_RULES = """OUTPUT FORMAT: Return ONLY a JSON object. No markdown. No extra text.
+DEVELOPER_RULES = """## RESPONSE FORMAT
+Return ONLY ONE JSON object. No markdown, no extra text, no multiple JSON objects.
 
-## JSON ACTIONS
+## ACTIONS
+1. run_algorithm: {"action": "run_algorithm", "algorithm_id": "wbt:AlgName", "params": {"param": "VALUE", "output": "TEMP"}, "load_outputs": true}
+2. explain: {"action": "explain", "text": "Your message"}
+3. ask_user: {"action": "ask_user", "question": "Your question"} (use sparingly!)
 
-1. run_algorithm - Run a processing algorithm
-{"action": "run_algorithm", "algorithm_id": "wbt:AlgorithmName", "params": {"param1": "EXACT_PATH_FROM_LAYER_CATALOG", "output": "TEMP"}, "load_outputs": true}
+## WHEN TO USE EACH
+- Input exists in LAYER_CATALOG → run_algorithm immediately
+- User confirms ("yes", "ok", "please do") → run_algorithm immediately  
+- User asks a question → explain
+- Need clarification on which layer → ask_user
 
-2. ask_user - Ask for missing information
-{"action": "ask_user", "question": "What threshold value should I use for stream extraction?"}
+## EXAMPLES (paths below are FAKE - always use REAL paths from LAYER_CATALOG!)
 
-3. explain - Answer questions OR explain required steps
-{"action": "explain", "text": "Your explanation here"}
+"fill depressions": 
+{"action": "run_algorithm", "algorithm_id": "wbt:FillDepressions", "params": {"dem": "<DEM_PATH>", "output": "TEMP"}, "load_outputs": true}
 
-## EXAMPLES
+"flow accumulation":
+{"action": "run_algorithm", "algorithm_id": "wbt:D8FlowAccumulation", "params": {"input": "<DEM_PATH>", "output": "TEMP"}, "load_outputs": true}
 
-LAYER_CATALOG shows:
-  - name: dem
-    source: /media/hdd/Dropbox/GitHub/whitebox-agents/data/dem.tif
+"extract streams" (when flow accum layer exists):
+{"action": "run_algorithm", "algorithm_id": "wbt:ExtractStreams", "params": {"flow_accum": "<FLOW_ACCUM_PATH>", "threshold": 1000, "output": "TEMP"}, "load_outputs": true}
 
-User: "fill depressions"
-{"action": "run_algorithm", "algorithm_id": "wbt:FillDepressions", "params": {"dem": "/media/hdd/Dropbox/GitHub/whitebox-agents/data/dem.tif", "output": "TEMP"}, "load_outputs": true}
+"extract streams" (no flow accum layer):
+{"action": "explain", "text": "ExtractStreams requires flow accumulation. Should I run D8FlowAccumulation first?"}
 
-User: "extract streams from the DEM"
-{"action": "explain", "text": "To extract streams, I need to first calculate flow accumulation. Let me do that: run D8FlowAccumulation on your DEM, then I can extract streams with a threshold. Should I proceed with flow accumulation first?"}
+"calculate wetness" (when flow accum exists):
+→ WetnessIndex needs: sca=flow_accum, slope=DEM (use DEM for slope if no slope layer!)
+{"action": "run_algorithm", "algorithm_id": "wbt:WetnessIndex", "params": {"sca": "<FLOW_ACCUM_PATH>", "slope": "<DEM_PATH>", "output": "TEMP"}, "load_outputs": true}
 
-User: "what lidar algorithms are available?"
-{"action": "explain", "text": "Available LiDAR algorithms include: AsciiToLas, ClassifyBuildingsInLidar, ClassifyLidar, ClipLidarToPolygon, ColourizeBasedOnClass, and more."}
+"calculate wetness" (no flow accum):
+{"action": "explain", "text": "WetnessIndex requires flow accumulation. Should I run D8FlowAccumulation first?"}
 
-User: "calculate flow accumulation"
-{"action": "run_algorithm", "algorithm_id": "wbt:D8FlowAccumulation", "params": {"input": "/media/hdd/Dropbox/GitHub/whitebox-agents/data/dem.tif", "output": "TEMP"}, "load_outputs": true}
-
-CRITICAL: Copy paths EXACTLY from LAYER_CATALOG. Never use example paths like /media/data/."""
+## CRITICAL
+- NEVER use "<PATH_FROM_LAYER_CATALOG>" literally - replace it with the ACTUAL path from LAYER_CATALOG!
+- Find the layer in LAYER_CATALOG and copy its exact "source:" value
+- Use "output": "TEMP" always
+- Check AVAILABLE_ALGORITHMS for exact param names (flow_accum not input, sca not dem)
+- Algorithm IDs are case-sensitive (wbt:Hillshade not wbt:HillShade)"""
 
 
 class LLMClient:
@@ -467,27 +477,44 @@ class LLMClient:
             except json.JSONDecodeError:
                 pass
 
-        # Try to find JSON object pattern (handles nested objects)
-        json_match = re.search(r"\{.*\}", text, re.DOTALL)
+        # Try to find the FIRST complete JSON object (handles multiple JSON objects in response)
+        # Use a more careful approach to find balanced braces
+        brace_count = 0
+        start_idx = -1
+        for i, char in enumerate(text):
+            if char == '{':
+                if brace_count == 0:
+                    start_idx = i
+                brace_count += 1
+            elif char == '}':
+                brace_count -= 1
+                if brace_count == 0 and start_idx >= 0:
+                    json_str = text[start_idx:i+1]
+                    try:
+                        result = json.loads(json_str)
+                        # Only return if it has a valid action
+                        if "action" in result:
+                            return result
+                    except json.JSONDecodeError:
+                        pass
+                    # Reset and keep looking
+                    start_idx = -1
+
+        # Fallback: try simple regex for JSON object
+        json_match = re.search(r"\{[^{}]*\}", text)
         if json_match:
             try:
-                return json.loads(json_match.group(0))
+                result = json.loads(json_match.group(0))
+                if "action" in result:
+                    return result
             except json.JSONDecodeError:
-                # Try to fix common issues
-                json_str = json_match.group(0)
-                # Replace single quotes with double quotes
-                json_str = re.sub(r"'([^']*)':", r'"\1":', json_str)
-                json_str = re.sub(r":\s*'([^']*)'", r': "\1"', json_str)
-                try:
-                    return json.loads(json_str)
-                except json.JSONDecodeError:
-                    pass
+                pass
 
         # If it looks like a plain text response, wrap it as explain action
-        # This handles cases where LLM ignores JSON format instruction
         if text and not text.startswith("{"):
-            # Clean up the text - remove any partial JSON attempts
-            clean_text = re.sub(r"\{[^}]*$", "", text).strip()
+            # Clean up the text - remove any JSON attempts
+            clean_text = re.sub(r"\{.*?\}", "", text, flags=re.DOTALL).strip()
+            clean_text = clean_text[:500] if clean_text else text[:500]
             if clean_text:
                 return {
                     "action": "explain",
