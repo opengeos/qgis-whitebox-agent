@@ -220,8 +220,11 @@ class UpdateCheckerDialog(QDialog):
             version_match = re.search(r"^version=(.+)$", content, re.MULTILINE)
             if version_match:
                 return version_match.group(1).strip()
-        except (FileNotFoundError, OSError, IOError):
-            pass
+        except (FileNotFoundError, OSError, IOError) as e:
+            # If the metadata file is missing or unreadable, log the problem and
+            # fall back to reporting an unknown version.
+            print(f"Failed to read plugin metadata.txt from '{metadata_path}': {e}")
+            return "Unknown"
         return "Unknown"
 
     def _setup_ui(self):
