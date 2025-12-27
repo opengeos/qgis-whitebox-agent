@@ -5,7 +5,6 @@ Main chat-style interface for the Whitebox AI Agent.
 Provides a conversational UI for natural language interaction with WhiteboxTools.
 """
 
-import os
 from typing import Optional, List, Dict, Any
 from datetime import datetime
 
