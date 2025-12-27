@@ -652,7 +652,7 @@ class ChatDockWidget(QDockWidget):
         """Handle dock widget close event."""
         # Stop any running worker
         if self._worker and self._worker.isRunning():
-            self._worker.terminate()
+            self._worker.requestInterruption()
             self._worker.wait()
 
         event.accept()
