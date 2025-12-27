@@ -11,7 +11,6 @@ from qgis.core import (
     QgsProcessingRegistry,
     QgsProcessingAlgorithm,
     QgsProcessingParameterDefinition,
-    QgsProcessingOutputDefinition,
     QgsProcessingParameterRasterLayer,
     QgsProcessingParameterVectorLayer,
     QgsProcessingParameterFeatureSource,
