@@ -1,5 +1,5 @@
 # Whitebox AI Agent - Python Requirements
-# 
+#
 # Note: Most dependencies are provided by QGIS/PyQGIS.
 # This file lists optional dependencies for development and testing.
 

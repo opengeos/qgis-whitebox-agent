@@ -18,7 +18,7 @@ def inspect_whitebox_algorithms():
     whitebox_provider = None
     for provider in registry.providers():
         pid = provider.id().lower()
-        if 'wbt' in pid or 'whitebox' in pid:
+        if "wbt" in pid or "whitebox" in pid:
             whitebox_provider = provider
             print(f"Found WhiteboxTools provider: {provider.id()} - {provider.name()}")
             break
@@ -35,7 +35,7 @@ def inspect_whitebox_algorithms():
     print("Fill/Depression related algorithms:")
     print("=" * 60)
 
-    fill_keywords = ['fill', 'depression', 'sink', 'breach']
+    fill_keywords = ["fill", "depression", "sink", "breach"]
 
     for alg in registry.algorithms():
         if alg.provider() and alg.provider().id() == whitebox_provider.id():

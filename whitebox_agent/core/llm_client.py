@@ -48,7 +48,7 @@ SYSTEM_PROMPT = """You are an AI assistant that executes WhiteboxTools geospatia
 ## ALGORITHM REFERENCE
 - FillDepressions: wbt:FillDepressions (dem, output)
 - FlowAccumulation: wbt:D8FlowAccumulation (input, output) - NOTE: param is "input"
-- FlowDirection: wbt:D8Pointer (dem, output) 
+- FlowDirection: wbt:D8Pointer (dem, output)
 - ExtractStreams: wbt:ExtractStreams (flow_accum, threshold, output) - REQUIRES flow accumulation raster!
 - Slope: wbt:Slope (dem, output)
 - Aspect: wbt:Aspect (dem, output)
@@ -92,7 +92,7 @@ User: "extract streams from the DEM"
 User: "what lidar algorithms are available?"
 {"action": "explain", "text": "Available LiDAR algorithms include: AsciiToLas, ClassifyBuildingsInLidar, ClassifyLidar, ClipLidarToPolygon, ColourizeBasedOnClass, and more."}
 
-User: "calculate flow accumulation"  
+User: "calculate flow accumulation"
 {"action": "run_algorithm", "algorithm_id": "wbt:D8FlowAccumulation", "params": {"input": "/media/hdd/Dropbox/GitHub/whitebox-agents/data/dem.tif", "output": "TEMP"}, "load_outputs": true}
 
 CRITICAL: Copy paths EXACTLY from LAYER_CATALOG. Never use example paths like /media/data/."""
@@ -487,7 +487,7 @@ class LLMClient:
         # This handles cases where LLM ignores JSON format instruction
         if text and not text.startswith("{"):
             # Clean up the text - remove any partial JSON attempts
-            clean_text = re.sub(r'\{[^}]*$', '', text).strip()
+            clean_text = re.sub(r"\{[^}]*$", "", text).strip()
             if clean_text:
                 return {
                     "action": "explain",
