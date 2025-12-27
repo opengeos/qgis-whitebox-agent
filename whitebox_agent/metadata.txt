@@ -1,0 +1,42 @@
+[general]
+name=Whitebox AI Agent
+qgisMinimumVersion=3.28
+description=An AI-powered agent for running WhiteboxTools through natural language using Ollama/Claude/OpenAI/Gemini.
+version=0.1.0
+author=Whitebox AI Agent Team
+email=support@example.com
+
+about=This plugin enables natural language interaction with WhiteboxTools processing algorithms.
+
+    Features:
+    - Chat-style interface for natural language queries
+    - Automatic algorithm discovery from QGIS Processing registry
+    - Multiple LLM backends: Ollama, Claude, OpenAI, Gemini
+    - Smart parameter validation and layer detection
+    - Automatic output loading to QGIS project
+    - Safe, deterministic execution through QgsProcessing
+
+    Simply describe what geospatial analysis you want to perform, and the AI agent
+    will select the appropriate WhiteboxTools algorithm and execute it for you.
+
+tracker=https://github.com/opengeos/qgis-whitebox-agent/issues
+repository=https://github.com/opengeos/qgis-whitebox-agent
+
+hasProcessingProvider=no
+
+tags=whitebox, whiteboxtools, ai, agent, llm, natural language, hydrology, terrain, geomorphometry
+
+homepage=https://github.com/opengeos/qgis-whitebox-agent
+category=Analysis
+icon=icons/icon.svg
+
+experimental=True
+deprecated=False
+
+changelog=
+    0.1.0 - Initial release
+        - Chat-style dockable panel
+        - Multi-LLM support (Ollama, Claude, OpenAI, Gemini)
+        - Dynamic algorithm discovery
+        - Automatic layer catalog
+        - Safe processing execution
