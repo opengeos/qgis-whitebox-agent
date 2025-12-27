@@ -270,6 +270,8 @@ class WhiteboxAgentPlugin:
                 if version_match:
                     version = version_match.group(1).strip()
         except Exception:
+            # If the metadata file cannot be read or parsed, keep the default
+            # "Unknown" version and continue showing the About dialog.
             pass
 
         about_text = f"""
