@@ -115,10 +115,10 @@ class DownloadWorker(QThread):
             extract_dir = os.path.join(temp_dir, "extracted")
             with zipfile.ZipFile(zip_path, "r") as zip_ref:
                 # Secure extraction to prevent zip slip
+                extract_dir_real = os.path.realpath(extract_dir)
                 for member in zip_ref.namelist():
                     member_path = os.path.realpath(os.path.join(extract_dir, member))
-                    extract_dir_real = os.path.realpath(extract_dir)
-                    if not member_path.startswith(extract_dir_real + os.sep):
+                    if os.path.commonpath([extract_dir_real, member_path]) != extract_dir_real:
                         raise Exception(
                             f"Attempted Path Traversal in Zip File: {member}"
                         )
