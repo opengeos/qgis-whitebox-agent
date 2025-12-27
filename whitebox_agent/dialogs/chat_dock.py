@@ -26,7 +26,7 @@ from qgis.core import QgsProject
 
 from ..core.processing_registry import ProcessingRegistryAdapter
 from ..core.context_builder import ContextBuilder
-from ..core.llm_client import LLMClient, LLMConfig, LLMProvider
+from ..core.llm_client import LLMClient
 from ..core.agent_executor import AgentExecutor, ActionType
 
 
