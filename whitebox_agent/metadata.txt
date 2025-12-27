@@ -3,8 +3,8 @@ name=Whitebox AI Agent
 qgisMinimumVersion=3.28
 description=An AI-powered agent for running WhiteboxTools through natural language using Ollama/Claude/OpenAI/Gemini.
 version=0.1.0
-author=Whitebox AI Agent Team
-email=support@example.com
+author=Qiusheng Wu
+email=giswqs@gmail.com
 
 about=This plugin enables natural language interaction with WhiteboxTools processing algorithms.
 
@@ -30,7 +30,7 @@ homepage=https://github.com/opengeos/qgis-whitebox-agent
 category=Analysis
 icon=icons/icon.svg
 
-experimental=True
+experimental=False
 deprecated=False
 
 changelog=
