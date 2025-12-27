@@ -140,7 +140,9 @@ class AgentWorker(QThread):
                 is_continuation = (
                     action_type == "run_algorithm"
                     and result.success
-                    and step_count == 1
+                    # Continue on any non-original step while staying within the max workflow limit
+                    and step_count > 0
+                    and step_count < MAX_WORKFLOW_STEPS - 1
                     and is_confirm
                 )
 
