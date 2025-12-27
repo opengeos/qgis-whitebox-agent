@@ -202,8 +202,10 @@ class ContextBuilder:
             Formatted string listing available WhiteboxTools algorithms.
         """
         lines = ["=== AVAILABLE_ALGORITHMS ==="]
-        lines.append("WhiteboxTools algorithms available through QGIS Processing:")
-        lines.append("(Use the exact algorithm_id when running)")
+        lines.append("WhiteboxTools algorithms available through QGIS Processing.")
+        lines.append(
+            "IMPORTANT: Use the EXACT algorithm_id (e.g., 'wbt:FillDepressions') when running!"
+        )
         lines.append("")
 
         algorithms = self.registry.get_whitebox_algorithms()
@@ -229,6 +231,12 @@ class ContextBuilder:
             "slope",
             "aspect",
             "hillshade",
+            "wetness",
+            "twi",
+            "tpi",
+            "index",
+            "curvature",
+            "relief",
         ]
 
         # Group by algorithm group
