@@ -14,7 +14,6 @@ The script will:
 3. Report success or failure
 """
 
-import os
 import shutil
 import sys
 from pathlib import Path
