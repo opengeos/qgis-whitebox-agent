@@ -112,10 +112,10 @@ class AgentWorker(QThread):
 
                 action_type = result.action_type.value
 
-                # Check if this is an intermediate step in a multi-step workflow
-                # Continue if: run_algorithm succeeded AND we're not on the original request
-                # (meaning user confirmed a multi-step workflow)
-                # Check if this is a confirmation message for a multi-step workflow
+                # Determine whether this step should continue a multi-step workflow
+                # Continue only when prior execution succeeded and this is not the original request
+                # (i.e., the user has confirmed continuation of the multi-step workflow)
+                # Check if the current user message is a confirmation to continue the workflow
                 confirm_words = [
                     "yes",
                     "ok",
