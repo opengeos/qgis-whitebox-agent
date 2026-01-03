@@ -2,7 +2,7 @@
 
 An AI-powered QGIS plugin for running WhiteboxTools through natural language using Ollama, Claude, OpenAI, or Gemini as the reasoning engine.
 
-![QGIS Version](https://img.shields.io/badge/QGIS-%E2%89%A53.28-green)
+[![QGIS Plugin](https://img.shields.io/badge/QGIS-Plugin-green.svg)](https://plugins.qgis.org/plugins/whitebox_agent)
 ![License](https://img.shields.io/badge/License-MIT-blue)
 
 ## Features
