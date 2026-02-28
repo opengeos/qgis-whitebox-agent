@@ -22,7 +22,6 @@ import re
 import zipfile
 from pathlib import Path
 
-
 # Patterns to exclude from the zip
 EXCLUDE_PATTERNS = [
     # Generated UI files from Qt Designer

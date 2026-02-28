@@ -113,8 +113,7 @@ class SettingsDockWidget(QDockWidget):
 
         self.save_btn = QPushButton("Save Settings")
         self.save_btn.clicked.connect(self._save_settings)
-        self.save_btn.setStyleSheet(
-            """
+        self.save_btn.setStyleSheet("""
             QPushButton {
                 background-color: #0078d4;
                 color: white;
@@ -126,8 +125,7 @@ class SettingsDockWidget(QDockWidget):
             QPushButton:hover {
                 background-color: #1084d8;
             }
-        """
-        )
+        """)
         button_layout.addWidget(self.save_btn)
 
         self.reset_btn = QPushButton("Reset Defaults")

@@ -294,8 +294,7 @@ class ChatDockWidget(QDockWidget):
         self.chat_display = QTextEdit()
         self.chat_display.setReadOnly(True)
         self.chat_display.setMinimumHeight(300)
-        self.chat_display.setStyleSheet(
-            """
+        self.chat_display.setStyleSheet("""
             QTextEdit {
                 background-color: #1e1e1e;
                 color: #d4d4d4;
@@ -305,8 +304,7 @@ class ChatDockWidget(QDockWidget):
                 font-family: 'Consolas', 'Monaco', monospace;
                 font-size: 10pt;
             }
-        """
-        )
+        """)
         layout.addWidget(self.chat_display, stretch=1)
 
         # Status bar
@@ -340,8 +338,7 @@ class ChatDockWidget(QDockWidget):
         self.input_field.setPlaceholderText(
             "Ask me to analyze your data... (e.g., 'Fill sinks in my DEM')"
         )
-        self.input_field.setStyleSheet(
-            """
+        self.input_field.setStyleSheet("""
             QLineEdit {
                 padding: 8px;
                 border: 1px solid #3c3c3c;
@@ -351,15 +348,13 @@ class ChatDockWidget(QDockWidget):
             QLineEdit:focus {
                 border-color: #0078d4;
             }
-        """
-        )
+        """)
         self.input_field.returnPressed.connect(self._on_send)
         input_layout.addWidget(self.input_field)
 
         self.send_btn = QPushButton("Send")
         self.send_btn.setMinimumWidth(60)
-        self.send_btn.setStyleSheet(
-            """
+        self.send_btn.setStyleSheet("""
             QPushButton {
                 background-color: #0078d4;
                 color: white;
@@ -377,8 +372,7 @@ class ChatDockWidget(QDockWidget):
             QPushButton:disabled {
                 background-color: #555;
             }
-        """
-        )
+        """)
         self.send_btn.clicked.connect(self._on_send)
         input_layout.addWidget(self.send_btn)
 
