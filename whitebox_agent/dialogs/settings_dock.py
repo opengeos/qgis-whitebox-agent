@@ -59,7 +59,9 @@ class SettingsDockWidget(QDockWidget):
         self.iface = iface
         self.settings = QSettings()
 
-        self.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
+        self.setAllowedAreas(
+            Qt.DockWidgetArea.LeftDockWidgetArea | Qt.DockWidgetArea.RightDockWidgetArea
+        )
         self._setup_ui()
         self._load_settings()
 
@@ -77,7 +79,7 @@ class SettingsDockWidget(QDockWidget):
         header_font.setPointSize(12)
         header_font.setBold(True)
         header_label.setFont(header_font)
-        header_label.setAlignment(Qt.AlignCenter)
+        header_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(header_label)
 
         # Tab widget
@@ -155,7 +157,7 @@ class SettingsDockWidget(QDockWidget):
         # API Key (if required)
         if requires_api_key:
             api_key_input = QLineEdit()
-            api_key_input.setEchoMode(QLineEdit.Password)
+            api_key_input.setEchoMode(QLineEdit.EchoMode.Password)
             api_key_input.setPlaceholderText(
                 f"Enter your {provider.capitalize()} API key..."
             )
@@ -169,7 +171,9 @@ class SettingsDockWidget(QDockWidget):
             show_key_btn.setCheckable(True)
             show_key_btn.toggled.connect(
                 lambda checked, inp=api_key_input: inp.setEchoMode(
-                    QLineEdit.Normal if checked else QLineEdit.Password
+                    QLineEdit.EchoMode.Normal
+                    if checked
+                    else QLineEdit.EchoMode.Password
                 )
             )
             api_key_layout.addWidget(show_key_btn)
@@ -496,11 +500,11 @@ class SettingsDockWidget(QDockWidget):
             "Reset Settings",
             "Are you sure you want to reset all settings to defaults?\n"
             "This will clear all API keys.",
-            QMessageBox.Yes | QMessageBox.No,
-            QMessageBox.No,
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No,
         )
 
-        if reply != QMessageBox.Yes:
+        if reply != QMessageBox.StandardButton.Yes:
             return
 
         providers = ["ollama", "claude", "openai", "gemini"]

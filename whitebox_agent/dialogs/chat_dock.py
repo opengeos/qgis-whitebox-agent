@@ -251,7 +251,9 @@ class ChatDockWidget(QDockWidget):
         # Worker thread
         self._worker: Optional[AgentWorker] = None
 
-        self.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
+        self.setAllowedAreas(
+            Qt.DockWidgetArea.LeftDockWidgetArea | Qt.DockWidgetArea.RightDockWidgetArea
+        )
         self._setup_ui()
         self._load_settings()
 
@@ -679,7 +681,7 @@ class ChatDockWidget(QDockWidget):
     def _append_formatted_message(self, header: str, body: str, header_color: str):
         """Append a formatted message to the chat display."""
         cursor = self.chat_display.textCursor()
-        cursor.movePosition(QTextCursor.End)
+        cursor.movePosition(QTextCursor.MoveOperation.End)
 
         # Add spacing if not first message
         if cursor.position() > 0:
@@ -689,7 +691,7 @@ class ChatDockWidget(QDockWidget):
         if header:
             header_format = QTextCharFormat()
             header_format.setForeground(QColor(header_color))
-            header_format.setFontWeight(QFont.Bold)
+            header_format.setFontWeight(QFont.Weight.Bold)
             cursor.insertText(header + "\n", header_format)
 
         # Add body

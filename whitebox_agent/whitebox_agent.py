@@ -187,7 +187,9 @@ class WhiteboxAgentPlugin:
                 self._chat_dock.visibilityChanged.connect(
                     self._on_chat_visibility_changed
                 )
-                self.iface.addDockWidget(Qt.RightDockWidgetArea, self._chat_dock)
+                self.iface.addDockWidget(
+                    Qt.DockWidgetArea.RightDockWidgetArea, self._chat_dock
+                )
                 self._chat_dock.show()
                 self._chat_dock.raise_()
                 return
@@ -228,7 +230,9 @@ class WhiteboxAgentPlugin:
                 self._settings_dock.visibilityChanged.connect(
                     self._on_settings_visibility_changed
                 )
-                self.iface.addDockWidget(Qt.RightDockWidgetArea, self._settings_dock)
+                self.iface.addDockWidget(
+                    Qt.DockWidgetArea.RightDockWidgetArea, self._settings_dock
+                )
                 self._settings_dock.show()
                 self._settings_dock.raise_()
                 return
@@ -269,10 +273,15 @@ class WhiteboxAgentPlugin:
                 version_match = re.search(r"^version=(.+)$", content, re.MULTILINE)
                 if version_match:
                     version = version_match.group(1).strip()
-        except Exception:
-            # If the metadata file cannot be read or parsed, keep the default
-            # "Unknown" version and continue showing the About dialog.
-            pass
+        except Exception as e:
+            # Log but do not fail the About dialog if metadata is unreadable.
+            from qgis.core import QgsMessageLog, Qgis
+
+            QgsMessageLog.logMessage(
+                f"Could not read version from metadata.txt: {e}",
+                "Whitebox AI Agent",
+                Qgis.MessageLevel.Warning,
+            )
 
         about_text = f"""
 <h2>Whitebox AI Agent</h2>
@@ -320,7 +329,7 @@ using Ollama, Claude, OpenAI, or Gemini as the reasoning engine.</p>
 
         try:
             dialog = UpdateCheckerDialog(self.plugin_dir, self.iface.mainWindow())
-            dialog.exec_()
+            dialog.exec()
         except Exception as e:
             QMessageBox.critical(
                 self.iface.mainWindow(),

@@ -1,8 +1,9 @@
 [general]
 name=Whitebox AI Agent
 qgisMinimumVersion=3.28
+qgisMaximumVersion=4.99
 description=An AI-powered agent for running WhiteboxTools through natural language using Ollama/Claude/OpenAI/Gemini.
-version=0.1.0
+version=0.2.0
 author=Qiusheng Wu
 email=giswqs@gmail.com
 
@@ -34,6 +35,10 @@ experimental=False
 deprecated=False
 
 changelog=
+    0.2.0 - QGIS 4.0 (Qt6) compatibility
+        - Compatible with QGIS 4.0 (PyQt6) while keeping QGIS 3.28+ (PyQt5) support
+        - Fully-qualified Qt enum forms throughout (works on both Qt5 and Qt6)
+        - Hardened urlopen calls (https-or-localhost guard)
     0.1.0 - Initial release
         - Chat-style dockable panel
         - Multi-LLM support (Ollama, Claude, OpenAI, Gemini)
