@@ -18,7 +18,7 @@ An AI-powered QGIS plugin for running WhiteboxTools through natural language usi
 
 ### Prerequisites
 
-1. **QGIS 3.28+** installed
+1. **QGIS 3.28+** (PyQt5) or **QGIS 4.0+** (PyQt6) installed
 2. **WhiteboxTools Processing Provider** installed and enabled in QGIS
 3. **Ollama** (for local LLM) or API keys for Claude/OpenAI/Gemini
 
@@ -173,8 +173,8 @@ The `data/` folder contains sample datasets for testing:
 ### Requirements
 
 - Python 3.10+
-- PyQt5 (bundled with QGIS)
-- QGIS 3.28+
+- PyQt5 / PyQt6 (bundled with QGIS 3.x / 4.x)
+- QGIS 3.28+ or 4.0+
 
 ### Testing with geo conda environment
 

@@ -13,6 +13,30 @@ import re
 from typing import Dict, Any, Optional, List
 from dataclasses import dataclass
 from enum import Enum
+from urllib.parse import urlparse
+
+_LOCAL_HOSTS = {"localhost", "127.0.0.1", "::1"}
+
+
+def _require_https_or_localhost(url: str) -> None:
+    """Reject URLs that would let urlopen reach a remote host over plaintext.
+
+    Args:
+        url: The full request URL about to be passed to urllib.urlopen.
+
+    Raises:
+        ValueError: If the scheme is not https and the host is not loopback.
+    """
+    parsed = urlparse(url)
+    scheme = (parsed.scheme or "").lower()
+    host = (parsed.hostname or "").lower()
+    if scheme == "https":
+        return
+    if scheme == "http" and host in _LOCAL_HOSTS:
+        return
+    raise ValueError(
+        f"Refusing to open {url!r}: only https URLs or http on localhost are allowed."
+    )
 
 
 class LLMProvider(Enum):
@@ -210,15 +234,19 @@ class LLMClient:
             },
         }
 
+        url = f"{base_url}/api/chat"
+        _require_https_or_localhost(url)
         data = json.dumps(payload).encode("utf-8")
         req = urllib.request.Request(
-            f"{base_url}/api/chat",
+            url,
             data=data,
             headers={"Content-Type": "application/json"},
         )
 
         try:
-            with urllib.request.urlopen(req, timeout=120) as response:
+            with urllib.request.urlopen(
+                req, timeout=120
+            ) as response:  # nosec B310 - scheme/host validated by _require_https_or_localhost above
                 result = json.loads(response.read().decode("utf-8"))
                 return result.get("message", {}).get("content", "")
         except urllib.error.URLError as e:
@@ -252,9 +280,11 @@ class LLMClient:
             "messages": messages,
         }
 
+        url = f"{base_url}/v1/messages"
+        _require_https_or_localhost(url)
         data = json.dumps(payload).encode("utf-8")
         req = urllib.request.Request(
-            f"{base_url}/v1/messages",
+            url,
             data=data,
             headers={
                 "Content-Type": "application/json",
@@ -264,7 +294,9 @@ class LLMClient:
         )
 
         try:
-            with urllib.request.urlopen(req, timeout=120) as response:
+            with urllib.request.urlopen(
+                req, timeout=120
+            ) as response:  # nosec B310 - scheme/host validated by _require_https_or_localhost above
                 result = json.loads(response.read().decode("utf-8"))
                 content = result.get("content", [])
                 if content and isinstance(content, list):
@@ -300,9 +332,11 @@ class LLMClient:
             "max_tokens": self.config.max_tokens,
         }
 
+        url = f"{base_url}/v1/chat/completions"
+        _require_https_or_localhost(url)
         data = json.dumps(payload).encode("utf-8")
         req = urllib.request.Request(
-            f"{base_url}/v1/chat/completions",
+            url,
             data=data,
             headers={
                 "Content-Type": "application/json",
@@ -311,7 +345,9 @@ class LLMClient:
         )
 
         try:
-            with urllib.request.urlopen(req, timeout=120) as response:
+            with urllib.request.urlopen(
+                req, timeout=120
+            ) as response:  # nosec B310 - scheme/host validated by _require_https_or_localhost above
                 result = json.loads(response.read().decode("utf-8"))
                 choices = result.get("choices", [])
                 if choices:
@@ -372,6 +408,7 @@ class LLMClient:
 
         data = json.dumps(payload).encode("utf-8")
         url = f"{base_url}/v1beta/models/{self.model}:generateContent?key={self.config.api_key}"
+        _require_https_or_localhost(url)
         req = urllib.request.Request(
             url,
             data=data,
@@ -379,7 +416,9 @@ class LLMClient:
         )
 
         try:
-            with urllib.request.urlopen(req, timeout=120) as response:
+            with urllib.request.urlopen(
+                req, timeout=120
+            ) as response:  # nosec B310 - scheme/host validated by _require_https_or_localhost above
                 result = json.loads(response.read().decode("utf-8"))
                 candidates = result.get("candidates", [])
                 if candidates:
